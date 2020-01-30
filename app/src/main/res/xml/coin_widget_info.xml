@@ -3,6 +3,7 @@
 
     android:initialKeyguardLayout="@layout/coin_widget"
     android:initialLayout="@layout/coin_widget"
+    android:configure="com.example.coinflipper.CoinWidgetConfigureActivity"
     android:minWidth="40dp"
     android:minHeight="40dp"
     android:previewImage="@drawable/silver1"
