@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="true" >
+    <item android:drawable="@drawable/silver1" android:duration="@integer/half_second"/>
+    <item android:drawable="@drawable/silver2" android:duration="@integer/half_second"/>
+    <item android:drawable="@drawable/silver3" android:duration="@integer/half_second"/>
+    <item android:drawable="@drawable/silver4" android:duration="@integer/half_second"/>
+    <item android:drawable="@drawable/silver5" android:duration="@integer/half_second"/>
+    <item android:drawable="@drawable/silver6" android:duration="@integer/half_second"/>
+    <item android:drawable="@drawable/silver7" android:duration="@integer/half_second"/>
+</animation-list>

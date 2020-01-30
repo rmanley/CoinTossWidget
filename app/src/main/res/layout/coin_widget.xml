@@ -1,0 +1,71 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ViewFlipper
+        android:id="@+id/flipper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        tools:ignore="KeyboardInaccessibleWidget" >
+
+        <ImageView
+            android:id="@+id/coin1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/silver1"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/coin2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/silver2"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/coin3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/silver3"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/coin4"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/silver4"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/coin5"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/silver5"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/coin6"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/silver6"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/coin7"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/silver7"
+            tools:ignore="ContentDescription" />
+
+    </ViewFlipper>
+
+<!--    <Button-->
+<!--        android:id="@+id/flipButton"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="FLIP!" />-->
+
+</LinearLayout>
