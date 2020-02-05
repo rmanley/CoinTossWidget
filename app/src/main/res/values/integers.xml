@@ -2,4 +2,34 @@
 <resources>
     <integer name="half_second">500</integer>
     <integer name="second">1000</integer>
+    <integer-array name="gold_coins">
+        <item>@drawable/gold1</item>
+        <item>@drawable/gold2</item>
+        <item>@drawable/gold3</item>
+        <item>@drawable/gold4</item>
+        <item>@drawable/gold5</item>
+        <item>@drawable/gold6</item>
+        <item>@drawable/gold7</item>
+        <item>@drawable/gold8</item>
+    </integer-array>
+    <integer-array name="silver_coins">
+        <item>@drawable/silver1</item>
+        <item>@drawable/silver2</item>
+        <item>@drawable/silver3</item>
+        <item>@drawable/silver4</item>
+        <item>@drawable/silver5</item>
+        <item>@drawable/silver6</item>
+        <item>@drawable/silver7</item>
+        <item>@drawable/silver8</item>
+    </integer-array>
+    <integer-array name="copper_coins">
+        <item>@drawable/copper1</item>
+        <item>@drawable/copper2</item>
+        <item>@drawable/copper3</item>
+        <item>@drawable/copper4</item>
+        <item>@drawable/copper5</item>
+        <item>@drawable/copper6</item>
+        <item>@drawable/copper7</item>
+        <item>@drawable/copper8</item>
+    </integer-array>
 </resources>

@@ -5,9 +5,8 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.widget.RemoteViews
-import java.util.*
+import kotlinx.coroutines.*
 
 /**
  * Implementation of App Widget functionality.
@@ -16,8 +15,6 @@ import java.util.*
 
 
 class CoinWidget : AppWidgetProvider() {
-    private val timer = Timer()
-    private var isFlipping = false
 
     override fun onUpdate(
         context: Context,
@@ -25,27 +22,7 @@ class CoinWidget : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
-        }
-    }
-
-    override fun onEnabled(context: Context?) {
-        super.onEnabled(context)
-        timer.cancel()
-        isFlipping = false
-    }
-
-    override fun onDisabled(context: Context?) {
-        super.onDisabled(context)
-        timer.cancel()
-        isFlipping = false
-    }
-
-    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
-        // When the user deletes the widget, delete the preference associated with it.
-        for (appWidgetId in appWidgetIds) {
-            timer.cancel()
-            isFlipping = false
+            updateCoinWidget(context, appWidgetManager, appWidgetId)
         }
     }
 
@@ -55,42 +32,54 @@ class CoinWidget : AppWidgetProvider() {
             if (receivedIntent.action == COIN_FLIPPED) {
                 val appWidgetId = receivedIntent.getIntExtra(APP_WIDGET_ID, -1)
                 context?.let {
-                    if (appWidgetId > -1)
-                        flipCoin(it, appWidgetId)
+                    if (appWidgetId > -1 && !isFlipping) {
+                        isFlipping = true
+                        GlobalScope.launch(Dispatchers.Main) {
+                            flipCoin(it, appWidgetId)
+                        }
+                    } else {
+                        job.cancel()
+                        isFlipping = false
+                    }
                 }
             }
         }
     }
 
-    private fun flipCoin(context: Context, appWidgetId: Int) {
-        Log.d("FLIP_COIN", "isFlipping: $isFlipping, id: $appWidgetId")
-        if (isFlipping) {
-            isFlipping = false
-            timer.cancel()
-        } else {
-            isFlipping = true
-            timer.scheduleAtFixedRate(object : TimerTask() {
-                override fun run() {
-                    val appWidgetManager = AppWidgetManager.getInstance(context)
-                    val views = RemoteViews(context.packageName, R.layout.coin_widget)
-                    views.showNext(R.id.flipper)
-                    appWidgetManager.updateAppWidget(appWidgetId, views)
-                }
-            }, 0, 100)
+    private suspend fun flipCoin(context: Context, appWidgetId: Int) {
+        job = GlobalScope.launch(Dispatchers.Main) {
+            while (job.isActive) {
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                val views = RemoteViews(context.packageName, R.layout.coin_widget)
+                views.showNext(R.id.flipper)
+                appWidgetManager.updateAppWidget(appWidgetId, views)
+                delay(100)
+            }
         }
     }
 
     companion object {
         private const val COIN_FLIPPED = "com.example.coinflipper.action.COIN_FLIPPED"
         private const val APP_WIDGET_ID = "app_widget_id"
+        const val EXTRA_COIN_SPRITES_IDS = "coin_sprites"
+        private var isFlipping = false
+        private lateinit var job: Job
 
-        fun updateAppWidget(
+        fun updateCoinWidget(
             context: Context,
             appWidgetManager: AppWidgetManager,
-            appWidgetId: Int
+            appWidgetId: Int,
+            coinSpriteIds: IntArray? = null
         ) {
             val views = RemoteViews(context.packageName, R.layout.coin_widget)
             views.setOnClickPendingIntent(R.id.flipper, getPendingIntent(context, COIN_FLIPPED, appWidgetId))
+            coinSpriteIds?.let { ids ->
+                val intent = Intent(context, CoinWidgetSpritesService::class.java).apply {
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                    putExtra(EXTRA_COIN_SPRITES_IDS, ids)
+                }
+                views.setRemoteAdapter(R.id.flipper, intent)
+            }
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
