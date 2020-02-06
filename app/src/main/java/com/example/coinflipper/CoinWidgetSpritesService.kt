@@ -22,6 +22,7 @@ class CoinWidgetSpritesService : RemoteViewsService()
         private lateinit var coinSpriteIds: IntArray
 
         override fun onCreate() {
+            Log.d("SERVICE", "Initializing service...: $intent")
             intent?.let {
                 appWidgetId = it.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
                 coinSpriteIds = it.getIntArrayExtra(EXTRA_COIN_SPRITES_IDS) ?: run {
@@ -41,6 +42,7 @@ class CoinWidgetSpritesService : RemoteViewsService()
         override fun hasStableIds() = true
 
         override fun getViewAt(position: Int) = RemoteViews(context.packageName, R.layout.coin_widget_sprite).apply {
+            Log.d("SERVICE", "Setting image: ${coinSpriteIds[position]}")
             setImageViewResource(R.id.coin_sprite, coinSpriteIds[position])
         }
 

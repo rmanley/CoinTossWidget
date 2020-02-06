@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.widget.RemoteViews
 import kotlinx.coroutines.*
 
@@ -15,7 +16,6 @@ import kotlinx.coroutines.*
 
 
 class CoinWidget : AppWidgetProvider() {
-
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -24,6 +24,7 @@ class CoinWidget : AppWidgetProvider() {
         for (appWidgetId in appWidgetIds) {
             updateCoinWidget(context, appWidgetManager, appWidgetId)
         }
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -72,14 +73,18 @@ class CoinWidget : AppWidgetProvider() {
             coinSpriteIds: IntArray? = null
         ) {
             val views = RemoteViews(context.packageName, R.layout.coin_widget)
-            views.setOnClickPendingIntent(R.id.flipper, getPendingIntent(context, COIN_FLIPPED, appWidgetId))
+
             coinSpriteIds?.let { ids ->
                 val intent = Intent(context, CoinWidgetSpritesService::class.java).apply {
                     putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                     putExtra(EXTRA_COIN_SPRITES_IDS, ids)
+                    data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
                 }
                 views.setRemoteAdapter(R.id.flipper, intent)
             }
+
+            // todo: Figure out why this line causes "Problem Loading Widget Error"
+            //views.setOnClickPendingIntent(R.id.flipper, getPendingIntent(context, COIN_FLIPPED, appWidgetId))
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
@@ -87,8 +92,9 @@ class CoinWidget : AppWidgetProvider() {
             val intent = Intent(context, CoinWidget::class.java).apply {
                 setAction(action)
                 putExtra(APP_WIDGET_ID, appWidgetId)
+                data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
             }
-            return PendingIntent.getBroadcast(context, appWidgetId, intent, 0)
+            return PendingIntent.getBroadcast(context, appWidgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
     }
 }
