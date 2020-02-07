@@ -1,6 +1,9 @@
-package com.example.coinflipper
+package com.rmanley.coinflipper
 
 import android.content.res.Resources
+import com.rmanley.coinflipper.extensions.getResourceIdsArray
+import com.rmanley.coinflipper.model.CoinColor
+import com.rmanley.coinflipper.util.CoinSpritesBuilder
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -33,8 +36,8 @@ class CoinSpritesBuilderTest {
     @Test
     fun `Setting both heads and tails builds a full array of resource ids`() {
         every { mockResources.getResourceIdsArray(any()) }.returns(mockCoinSpriteIds1)
-        target.setHeadsSprites(CoinType.Gold)
-        target.setTailsSprites(CoinType.Gold)
+        target.setHeadsSprites(CoinColor.Gold)
+        target.setTailsSprites(CoinColor.Gold)
         val spriteIds = target.build()
         val expectedSize = TOTAL_SPRITES
         assertEquals(expected = expectedSize, actual = spriteIds.size)
@@ -43,9 +46,9 @@ class CoinSpritesBuilderTest {
     @Test
     fun `Building a full array of resource ids consists of 1 more heads sprites than tails`() {
         every { mockResources.getResourceIdsArray(any()) }.returns(mockCoinSpriteIds1)
-        target.setHeadsSprites(CoinType.Gold)
+        target.setHeadsSprites(CoinColor.Gold)
         every { mockResources.getResourceIdsArray(any()) }.returns(mockCoinSpriteIds2)
-        target.setTailsSprites(CoinType.Gold)
+        target.setTailsSprites(CoinColor.Gold)
         val spriteIds = target.build()
         assertTrue(spriteIds.contentEquals(mockCombinedSpriteIds))
     }

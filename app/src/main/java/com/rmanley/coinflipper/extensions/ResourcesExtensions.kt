@@ -1,4 +1,4 @@
-package com.example.coinflipper
+package com.rmanley.coinflipper.extensions
 
 import android.content.res.Resources
 

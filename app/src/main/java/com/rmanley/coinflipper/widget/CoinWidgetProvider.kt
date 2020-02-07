@@ -1,4 +1,4 @@
-package com.example.coinflipper
+package com.rmanley.coinflipper.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -7,7 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.RemoteViews
-import android.widget.Toast
+import com.rmanley.coinflipper.R
 import kotlinx.coroutines.*
 
 /**
@@ -26,7 +26,11 @@ class CoinWidgetProvider : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         for (appWidgetId in appWidgetIds) {
-            updateCoinWidget(context, appWidgetManager, appWidgetId)
+            updateCoinWidget(
+                context,
+                appWidgetManager,
+                appWidgetId
+            )
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds)
     }
@@ -52,39 +56,36 @@ class CoinWidgetProvider : AppWidgetProvider() {
         }
     }
 
+    // todo: compare with Handler implementation
+    // todo: implement random heads/tails result and stop spinning
     private suspend fun flipCoin(context: Context, appWidgetId: Int) {
         job = GlobalScope.launch(Dispatchers.Main) {
             while (job.isActive) {
                 val appWidgetManager = AppWidgetManager.getInstance(context)
-                val views = RemoteViews(context.packageName, R.layout.coin_widget)
+                val views = RemoteViews(context.packageName,
+                    R.layout.coin_widget
+                )
                 views.showNext(R.id.flipper)
                 appWidgetManager.updateAppWidget(appWidgetId, views)
-                delay(100)
+                delay(50)
             }
         }
     }
 
     companion object {
         private const val COIN_FLIPPED = "com.example.coinflipper.action.COIN_FLIPPED"
-        const val EXTRA_COIN_SPRITES_IDS = "coin_sprites"
 
         fun updateCoinWidget(
             context: Context,
             appWidgetManager: AppWidgetManager,
-            appWidgetId: Int,
-            coinSpriteIds: IntArray? = null
+            appWidgetId: Int
         ) {
             val views = RemoteViews(context.packageName, R.layout.coin_widget)
-
-            coinSpriteIds?.let { ids ->
-                val intent = Intent(context, CoinWidgetSpritesService::class.java).apply {
-                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                    putExtra(EXTRA_COIN_SPRITES_IDS, ids)
-                    data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
-                }
-                views.setRemoteAdapter(R.id.flipper, intent)
+            val intent = Intent(context, CoinWidgetSpritesService::class.java).apply {
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
             }
-
+            views.setRemoteAdapter(R.id.flipper, intent)
             views.setPendingIntentTemplate(R.id.flipper, getPendingIntent(context, appWidgetId))
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }

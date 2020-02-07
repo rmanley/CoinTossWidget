@@ -1,4 +1,4 @@
-package com.example.coinflipper
+package com.rmanley.coinflipper.ui
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -7,9 +7,12 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import com.rmanley.coinflipper.R
+import com.rmanley.coinflipper.model.Coin
 
 class CoinSpinnerAdapter(context: Context, private val coins: Array<Coin>)
-    : ArrayAdapter<Coin>(context, R.layout.image_spinner_item, coins) {
+    : ArrayAdapter<Coin>(context,
+    R.layout.image_spinner_item, coins) {
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup) = getBoundView(position, convertView, parent)
 
@@ -23,7 +26,7 @@ class CoinSpinnerAdapter(context: Context, private val coins: Array<Coin>)
             val coinImage = findViewById<ImageView>(R.id.spinner_item_image)
             val coinText = findViewById<TextView>(R.id.spinner_item_text)
             coinImage.setImageResource(coin.spriteId)
-            coinText.text = coin.coinType.name
+            coinText.text = coin.coinColor.name
         }
     }
 }

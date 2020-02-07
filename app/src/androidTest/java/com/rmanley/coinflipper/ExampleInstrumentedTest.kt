@@ -1,4 +1,4 @@
-package com.example.coinflipper
+package com.rmanley.coinflipper
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry

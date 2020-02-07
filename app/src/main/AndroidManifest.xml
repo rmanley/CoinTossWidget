@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.coinflipper">
+    package="com.rmanley.coinflipper">
 
     <application
         android:allowBackup="true"
@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <receiver android:name=".CoinWidgetProvider">
+        <receiver android:name="com.rmanley.coinflipper.widget.CoinWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.example.coinflipper.action.COIN_FLIPPED"/>
@@ -21,12 +21,12 @@
                 android:resource="@xml/coin_widget_info" />
         </receiver>
 
-        <activity android:name=".CoinWidgetConfigureActivity">
+        <activity android:name="com.rmanley.coinflipper.widget.CoinWidgetConfigureActivity">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
-        <service android:name=".CoinWidgetSpritesService"
+        <service android:name="com.rmanley.coinflipper.widget.CoinWidgetSpritesService"
             android:permission="android.permission.BIND_REMOTEVIEWS"
             android:exported="false" />
     </application>

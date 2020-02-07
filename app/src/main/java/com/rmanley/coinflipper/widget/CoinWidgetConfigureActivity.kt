@@ -1,10 +1,16 @@
-package com.example.coinflipper
+package com.rmanley.coinflipper.widget
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
-import com.example.coinflipper.CoinWidgetProvider.Companion.updateCoinWidget
+import com.rmanley.coinflipper.widget.CoinWidgetProvider.Companion.updateCoinWidget
+import com.rmanley.coinflipper.R
+import com.rmanley.coinflipper.model.Coin
+import com.rmanley.coinflipper.model.CoinColor
+import com.rmanley.coinflipper.storage.CoinWidgetSharedPreferences
+import com.rmanley.coinflipper.ui.CoinSpinnerAdapter
+import com.rmanley.coinflipper.util.CoinSpritesBuilder
 import kotlinx.android.synthetic.main.coin_widget_configure.*
 
 /**
@@ -35,19 +41,27 @@ class CoinWidgetConfigureActivity : Activity() {
     }
 
     private fun initUI() {
-        heads_spinner.adapter = CoinSpinnerAdapter(this, getSpinnerCoins())
-        tails_spinner.adapter = CoinSpinnerAdapter(this, getSpinnerCoins())
+        heads_spinner.adapter = CoinSpinnerAdapter(
+            this,
+            getSpinnerCoins()
+        )
+        tails_spinner.adapter = CoinSpinnerAdapter(
+            this,
+            getSpinnerCoins()
+        )
         add_button.setOnClickListener { createWidget() }
     }
 
     private fun createWidget() {
+        val coinWidgetStorage = CoinWidgetSharedPreferences.createInstance(this)
         val appWidgetManager = AppWidgetManager.getInstance(this)
 
         val headsCoin = heads_spinner.selectedItem as Coin
         val tailsCoin = tails_spinner.selectedItem as Coin
-        val spriteIds = getResourceIdsForSelection(headsCoin.coinType, tailsCoin.coinType)
+        coinWidgetStorage.saveHeadsColor(appWidgetId, headsCoin.coinColor)
+        coinWidgetStorage.saveTailsColor(appWidgetId, tailsCoin.coinColor)
 
-        updateCoinWidget(this, appWidgetManager, appWidgetId, spriteIds)
+        updateCoinWidget(this, appWidgetManager, appWidgetId)
 
         val resultValue = Intent()
         resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -56,14 +70,8 @@ class CoinWidgetConfigureActivity : Activity() {
     }
 
     private fun getSpinnerCoins() = arrayOf(
-        Coin(R.drawable.gold1, CoinType.Gold),
-        Coin(R.drawable.silver1, CoinType.Silver),
-        Coin(R.drawable.copper1, CoinType.Copper)
+        Coin(R.drawable.gold1, CoinColor.Gold),
+        Coin(R.drawable.silver1, CoinColor.Silver),
+        Coin(R.drawable.copper1, CoinColor.Copper)
     )
-
-    private fun getResourceIdsForSelection(headsCoinType: CoinType, tailsCoinType: CoinType) =
-        CoinSpritesBuilder(resources)
-            .setHeadsSprites(headsCoinType)
-            .setTailsSprites(tailsCoinType)
-            .build()
 }
