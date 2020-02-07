@@ -36,7 +36,7 @@ class CoinSpritesBuilderTest {
         target.setHeadsSprites(CoinType.Gold)
         target.setTailsSprites(CoinType.Gold)
         val spriteIds = target.build()
-        val expectedSize = mockCoinSpriteIds1.size + 1
+        val expectedSize = TOTAL_SPRITES
         assertEquals(expected = expectedSize, actual = spriteIds.size)
     }
 
@@ -51,8 +51,13 @@ class CoinSpritesBuilderTest {
     }
 
     private companion object {
+        const val TOTAL_SPRITES = 16
         val mockCoinSpriteIds1 = IntArray(8) { i -> i }
         val mockCoinSpriteIds2 = IntArray(8) { i -> i * 2 }
-        val mockCombinedSpriteIds = intArrayOf(0, 1, 2, 3, 4, 10, 12, 14, 8)
+        val mockCombinedSpriteIds = intArrayOf(
+            0, 1, 2, 3, 4,
+            10, 12, 14, 0, 2, 4, 6,
+            4, 5, 6, 7
+        )
     }
 }

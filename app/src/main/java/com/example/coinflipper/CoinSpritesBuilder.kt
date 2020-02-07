@@ -3,28 +3,34 @@ package com.example.coinflipper
 import android.content.res.Resources
 
 class CoinSpritesBuilder(private val resources: Resources) {
-    private var headsIds = intArrayOf()
-    private var tailsIds = intArrayOf()
+    private val headsStartIds = mutableListOf<Int>()
+    private val headsEndIds = mutableListOf<Int>()
+    private val tailsIds = mutableListOf<Int>()
 
     fun setHeadsSprites(coinType: CoinType) = apply {
         val coinIds = getResourceArray(coinType)
-        headsIds = IntArray(coinIds.size / 2 + 1) { i -> coinIds[i] }
+        headsStartIds.clear()
+        headsStartIds.addAll(coinIds.copyOfRange(0, coinIds.size / 2 + 1).toList())
+        headsEndIds.clear()
+        headsEndIds.addAll(coinIds.copyOfRange(coinIds.size / 2, coinIds.size).toList())
     }
 
     fun setTailsSprites(coinType: CoinType) = apply {
-        with(getResourceArray(coinType)) {
-            tailsIds = copyOfRange(size / 2, size)
-        }
+        val coinIds = getResourceArray(coinType)
+        tailsIds.clear()
+        tailsIds.addAll(coinIds.copyOfRange(coinIds.size / 2 + 1, coinIds.size).toList())
+        tailsIds.addAll(coinIds.copyOfRange(0, coinIds.size / 2).toList())
+
     }
 
-    fun build() = if (headsIds.isEmpty() || tailsIds.isEmpty())
+    fun build() = if (headsStartIds.isEmpty() || tailsIds.isEmpty())
         intArrayOf()
     else {
-        val totalIds = headsIds.size + tailsIds.size
-        IntArray(totalIds) { i ->
-            // todo: Fix array out of bounds exception
-            if (i < totalIds / 2 + 1) headsIds[i] else tailsIds[i % tailsIds.size]
-        }
+        mutableListOf<Int>().apply {
+            addAll(headsStartIds)
+            addAll(tailsIds)
+            addAll(headsEndIds)
+        }.toIntArray()
     }
 
     private fun getResourceArray(coinType: CoinType): IntArray = when(coinType) {

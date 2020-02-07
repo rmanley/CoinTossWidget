@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.RemoteViews
+import android.widget.Toast
 import kotlinx.coroutines.*
 
 /**
@@ -15,7 +16,10 @@ import kotlinx.coroutines.*
  */
 
 
-class CoinWidget : AppWidgetProvider() {
+class CoinWidgetProvider : AppWidgetProvider() {
+    private var isFlipping = false
+    private lateinit var job: Job
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -31,7 +35,8 @@ class CoinWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
         intent?.let { receivedIntent ->
             if (receivedIntent.action == COIN_FLIPPED) {
-                val appWidgetId = receivedIntent.getIntExtra(APP_WIDGET_ID, -1)
+                val appWidgetId = receivedIntent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    AppWidgetManager.INVALID_APPWIDGET_ID)
                 context?.let {
                     if (appWidgetId > -1 && !isFlipping) {
                         isFlipping = true
@@ -61,10 +66,7 @@ class CoinWidget : AppWidgetProvider() {
 
     companion object {
         private const val COIN_FLIPPED = "com.example.coinflipper.action.COIN_FLIPPED"
-        private const val APP_WIDGET_ID = "app_widget_id"
         const val EXTRA_COIN_SPRITES_IDS = "coin_sprites"
-        private var isFlipping = false
-        private lateinit var job: Job
 
         fun updateCoinWidget(
             context: Context,
@@ -83,15 +85,14 @@ class CoinWidget : AppWidgetProvider() {
                 views.setRemoteAdapter(R.id.flipper, intent)
             }
 
-            // todo: Figure out why this line causes "Problem Loading Widget Error"
-            //views.setOnClickPendingIntent(R.id.flipper, getPendingIntent(context, COIN_FLIPPED, appWidgetId))
+            views.setPendingIntentTemplate(R.id.flipper, getPendingIntent(context, appWidgetId))
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
-        private fun getPendingIntent(context: Context, action: String, appWidgetId: Int): PendingIntent {
-            val intent = Intent(context, CoinWidget::class.java).apply {
-                setAction(action)
-                putExtra(APP_WIDGET_ID, appWidgetId)
+        private fun getPendingIntent(context: Context, appWidgetId: Int): PendingIntent {
+            val intent = Intent(context, CoinWidgetProvider::class.java).apply {
+                action = COIN_FLIPPED
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
             }
             return PendingIntent.getBroadcast(context, appWidgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT)

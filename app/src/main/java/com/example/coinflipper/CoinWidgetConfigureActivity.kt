@@ -4,11 +4,11 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
-import com.example.coinflipper.CoinWidget.Companion.updateCoinWidget
+import com.example.coinflipper.CoinWidgetProvider.Companion.updateCoinWidget
 import kotlinx.android.synthetic.main.coin_widget_configure.*
 
 /**
- * The configuration screen for the [CoinWidget] AppWidget.
+ * The configuration screen for the [CoinWidgetProvider] AppWidget.
  */
 class CoinWidgetConfigureActivity : Activity() {
 
