@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Coin Flipper</string>
-    <string name="configure">Configure</string>
-    <string name="add_widget">Add widget</string>
+    <string name="configure_title">Customize Your Coin</string>
+    <string name="create">Create</string>
     <string name="heads_title">Heads</string>
     <string name="tails_title">Tails</string>
 </resources>

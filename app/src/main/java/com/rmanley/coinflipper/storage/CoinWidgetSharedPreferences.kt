@@ -14,6 +14,13 @@ class CoinWidgetSharedPreferences(private val sharedPreferences: SharedPreferenc
 
     fun findTailsColor(appWidgetId: Int): CoinColor? = findColor(TAILS_COLOR_KEY, appWidgetId)
 
+    fun deleteCoinColors(appWidgetId: Int) {
+        sharedPreferences.edit()
+            .remove("$HEADS_COLOR_KEY$appWidgetId")
+            .remove("$TAILS_COLOR_KEY$appWidgetId")
+            .apply()
+    }
+
     private fun saveColor(key: String, appWidgetId: Int, coinColor: CoinColor) {
         sharedPreferences.edit()
             .putInt("$key$appWidgetId", coinColor.ordinal)

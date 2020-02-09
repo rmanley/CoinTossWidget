@@ -4,13 +4,12 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
-import com.rmanley.coinflipper.widget.CoinWidgetProvider.Companion.updateCoinWidget
 import com.rmanley.coinflipper.R
 import com.rmanley.coinflipper.model.Coin
 import com.rmanley.coinflipper.model.CoinColor
 import com.rmanley.coinflipper.storage.CoinWidgetSharedPreferences
 import com.rmanley.coinflipper.ui.CoinSpinnerAdapter
-import com.rmanley.coinflipper.util.CoinSpritesBuilder
+import com.rmanley.coinflipper.widget.CoinWidgetProvider.Companion.updateCoinWidget
 import kotlinx.android.synthetic.main.coin_widget_configure.*
 
 /**
@@ -49,7 +48,7 @@ class CoinWidgetConfigureActivity : Activity() {
             this,
             getSpinnerCoins()
         )
-        add_button.setOnClickListener { createWidget() }
+        create_button.setOnClickListener { createWidget() }
     }
 
     private fun createWidget() {

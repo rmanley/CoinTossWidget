@@ -8,7 +8,9 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.RemoteViews
 import com.rmanley.coinflipper.R
+import com.rmanley.coinflipper.storage.CoinWidgetSharedPreferences
 import kotlinx.coroutines.*
+import kotlin.random.Random
 
 /**
  * Implementation of App Widget functionality.
@@ -18,7 +20,6 @@ import kotlinx.coroutines.*
 
 class CoinWidgetProvider : AppWidgetProvider() {
     private var isFlipping = false
-    private lateinit var job: Job
 
     override fun onUpdate(
         context: Context,
@@ -35,6 +36,16 @@ class CoinWidgetProvider : AppWidgetProvider() {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
     }
 
+    override fun onDeleted(context: Context?, appWidgetIds: IntArray?) {
+        context?.let {
+            val coinWidgetStorage = CoinWidgetSharedPreferences.createInstance(it)
+            appWidgetIds?.forEach { id ->
+                coinWidgetStorage.deleteCoinColors(id)
+            }
+        }
+        super.onDeleted(context, appWidgetIds)
+    }
+
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
         intent?.let { receivedIntent ->
@@ -42,13 +53,12 @@ class CoinWidgetProvider : AppWidgetProvider() {
                 val appWidgetId = receivedIntent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID)
                 context?.let {
-                    if (appWidgetId > -1 && !isFlipping) {
+                    if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID && !isFlipping) {
                         isFlipping = true
-                        GlobalScope.launch(Dispatchers.Main) {
+                        GlobalScope.launch {
                             flipCoin(it, appWidgetId)
                         }
                     } else {
-                        job.cancel()
                         isFlipping = false
                     }
                 }
@@ -56,20 +66,28 @@ class CoinWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    // todo: compare with Handler implementation
-    // todo: implement random heads/tails result and stop spinning
+    // todo: maybe toast "Heads/Tails!"?
     private suspend fun flipCoin(context: Context, appWidgetId: Int) {
-        job = GlobalScope.launch(Dispatchers.Main) {
-            while (job.isActive) {
+        withContext(Dispatchers.Main) {
+            repeat(getTimesToFlip()) {
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 val views = RemoteViews(context.packageName,
                     R.layout.coin_widget
                 )
                 views.showNext(R.id.flipper)
                 appWidgetManager.updateAppWidget(appWidgetId, views)
-                delay(50)
+                delay(25)
             }
         }
+    }
+
+    private fun getTimesToFlip(): Int {
+        val isHeads = Random.nextBoolean()
+        val multiplier = (3..5).random()
+        return if (isHeads)
+            16 * multiplier
+        else
+            8 * multiplier
     }
 
     companion object {
