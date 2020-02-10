@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.RemoteViews
+import android.widget.Toast
 import com.rmanley.coinflipper.R
 import com.rmanley.coinflipper.storage.CoinWidgetSharedPreferences
 import kotlinx.coroutines.*
@@ -58,18 +59,17 @@ class CoinWidgetProvider : AppWidgetProvider() {
                         GlobalScope.launch {
                             flipCoin(it, appWidgetId)
                         }
-                    } else {
-                        isFlipping = false
                     }
                 }
             }
         }
     }
 
-    // todo: maybe toast "Heads/Tails!"?
+    // todo: refactor
     private suspend fun flipCoin(context: Context, appWidgetId: Int) {
         withContext(Dispatchers.Main) {
-            repeat(getTimesToFlip()) {
+            val flipResult = getTimesToFlipAndResult()
+            repeat(flipResult.first) {
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 val views = RemoteViews(context.packageName,
                     R.layout.coin_widget
@@ -78,16 +78,20 @@ class CoinWidgetProvider : AppWidgetProvider() {
                 appWidgetManager.updateAppWidget(appWidgetId, views)
                 delay(25)
             }
+            isFlipping = false
+            val side = if(flipResult.second) "Heads!" else "Tails!"
+            Toast.makeText(context, side, Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun getTimesToFlip(): Int {
+    // todo: refactor
+    private fun getTimesToFlipAndResult(): Pair<Int, Boolean> {
         val isHeads = Random.nextBoolean()
         val multiplier = (3..5).random()
         return if (isHeads)
-            16 * multiplier
+            Pair(16 * multiplier, isHeads)
         else
-            8 * multiplier
+            Pair(8 * multiplier, isHeads)
     }
 
     companion object {
