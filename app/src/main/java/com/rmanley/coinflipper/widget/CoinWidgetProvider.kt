@@ -10,8 +10,9 @@ import android.widget.RemoteViews
 import android.widget.Toast
 import com.rmanley.coinflipper.R
 import com.rmanley.coinflipper.storage.CoinWidgetSharedPreferences
+import com.rmanley.coinflipper.util.CoinFlipper
+import com.rmanley.coinflipper.util.CoinSpritesProvider
 import kotlinx.coroutines.*
-import kotlin.random.Random
 
 /**
  * Implementation of App Widget functionality.
@@ -44,6 +45,7 @@ class CoinWidgetProvider : AppWidgetProvider() {
                 coinWidgetStorage.deleteCoinColors(id)
             }
         }
+        isFlipping = false
         super.onDeleted(context, appWidgetIds)
     }
 
@@ -68,34 +70,28 @@ class CoinWidgetProvider : AppWidgetProvider() {
     // todo: refactor
     private suspend fun flipCoin(context: Context, appWidgetId: Int) {
         withContext(Dispatchers.Main) {
-            val flipResult = getTimesToFlipAndResult()
-            repeat(flipResult.first) {
-                val appWidgetManager = AppWidgetManager.getInstance(context)
-                val views = RemoteViews(context.packageName,
-                    R.layout.coin_widget
-                )
-                views.showNext(R.id.flipper)
-                appWidgetManager.updateAppWidget(appWidgetId, views)
-                delay(25)
+            val coinFlipResult = coinFlipper?.getCoinFlipResult()
+            coinFlipResult?.let { result ->
+                repeat(result.timesFlipped) {
+                    val appWidgetManager = AppWidgetManager.getInstance(context)
+                    val views = RemoteViews(
+                        context.packageName,
+                        R.layout.coin_widget
+                    )
+                    views.showNext(R.id.flipper)
+                    appWidgetManager.updateAppWidget(appWidgetId, views)
+                    delay(25)
+                }
+                isFlipping = false
+                val side = if (result.isHeads) "Heads!" else "Tails!"
+                Toast.makeText(context, side, Toast.LENGTH_SHORT).show()
             }
-            isFlipping = false
-            val side = if(flipResult.second) "Heads!" else "Tails!"
-            Toast.makeText(context, side, Toast.LENGTH_SHORT).show()
         }
-    }
-
-    // todo: refactor
-    private fun getTimesToFlipAndResult(): Pair<Int, Boolean> {
-        val isHeads = Random.nextBoolean()
-        val multiplier = (3..5).random()
-        return if (isHeads)
-            Pair(16 * multiplier, isHeads)
-        else
-            Pair(8 * multiplier, isHeads)
     }
 
     companion object {
         private const val COIN_FLIPPED = "com.example.coinflipper.action.COIN_FLIPPED"
+        private lateinit var coinFlipper: CoinFlipper
 
         fun updateCoinWidget(
             context: Context,
@@ -109,6 +105,8 @@ class CoinWidgetProvider : AppWidgetProvider() {
             }
             views.setRemoteAdapter(R.id.flipper, intent)
             views.setPendingIntentTemplate(R.id.flipper, getPendingIntent(context, appWidgetId))
+            val coinSprites = CoinSpritesProvider.createInstance(context!!).getCoinSprites(appWidgetId)
+            coinFlipper = CoinFlipper(coinSprites)
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 

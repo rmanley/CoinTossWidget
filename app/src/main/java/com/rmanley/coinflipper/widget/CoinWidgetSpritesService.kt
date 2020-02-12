@@ -6,9 +6,8 @@ import android.content.Intent
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
+import com.rmanley.coinflipper.util.CoinSpritesProvider
 import com.rmanley.coinflipper.R
-import com.rmanley.coinflipper.storage.CoinWidgetSharedPreferences
-import com.rmanley.coinflipper.util.CoinSpritesBuilder
 
 class CoinWidgetSpritesService : RemoteViewsService()
 {
@@ -17,15 +16,13 @@ class CoinWidgetSpritesService : RemoteViewsService()
     override fun onGetViewFactory(intent: Intent?): RemoteViewsFactory = CoinWidgetRemoteViewsFactory(
         applicationContext,
         intent,
-        CoinWidgetSharedPreferences.createInstance(applicationContext),
-        CoinSpritesBuilder(resources)
+        CoinSpritesProvider.createInstance(applicationContext)
     )
 
     inner class CoinWidgetRemoteViewsFactory(
         private val context: Context,
         private val intent: Intent?,
-        private val coinWidgetStorage: CoinWidgetSharedPreferences,
-        private val coinSpritesBuilder: CoinSpritesBuilder
+        private val coinSpritesProvider: CoinSpritesProvider
     ) : RemoteViewsFactory {
 
         private lateinit var coinSpriteIds: IntArray
@@ -34,20 +31,11 @@ class CoinWidgetSpritesService : RemoteViewsService()
         override fun onCreate() {
             intent?.let {
                 appWidgetId = it.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-                val headsCoinColor = coinWidgetStorage.findHeadsColor(appWidgetId)
-                    ?: run {
-                        Log.e("ERROR", "Heads coin color is null.")
-                        return
-                    }
-                val tailsCoinColor = coinWidgetStorage.findTailsColor(appWidgetId)
-                    ?: run {
-                        Log.e("ERROR", "Tails coin color is null.")
-                        return
-                    }
-                coinSpriteIds = coinSpritesBuilder
-                    .setHeadsSprites(headsCoinColor)
-                    .setTailsSprites(tailsCoinColor)
-                    .build()
+                if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+                    Log.e("ERROR", "App widget id is invalid.")
+                    return
+                }
+                coinSpriteIds = coinSpritesProvider.getCoinSprites(appWidgetId)
             } ?: run {
                 Log.e("ERROR", "Intent is null.")
                 return
