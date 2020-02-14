@@ -3,11 +3,15 @@ package com.rmanley.coinflipper.widget
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
-import com.rmanley.coinflipper.util.CoinSpritesProvider
 import com.rmanley.coinflipper.R
+import com.rmanley.coinflipper.storage.CoinSpritesRepository
+import com.rmanley.coinflipper.util.CoinFlipper
+import com.rmanley.coinflipper.widget.CoinWidgetProvider.Companion.COIN_FLIP_RESULT_IS_HEADS
+import com.rmanley.coinflipper.widget.CoinWidgetProvider.Companion.COIN_FLIP_RESULT_TIMES
 
 class CoinWidgetSpritesService : RemoteViewsService()
 {
@@ -16,16 +20,17 @@ class CoinWidgetSpritesService : RemoteViewsService()
     override fun onGetViewFactory(intent: Intent?): RemoteViewsFactory = CoinWidgetRemoteViewsFactory(
         applicationContext,
         intent,
-        CoinSpritesProvider.createInstance(applicationContext)
+        CoinSpritesRepository.createInstance(applicationContext)
     )
 
     inner class CoinWidgetRemoteViewsFactory(
         private val context: Context,
         private val intent: Intent?,
-        private val coinSpritesProvider: CoinSpritesProvider
+        private val coinSpritesRepository: CoinSpritesRepository
     ) : RemoteViewsFactory {
 
         private lateinit var coinSpriteIds: IntArray
+        private lateinit var coinFlipper: CoinFlipper
 
         // todo: better implement error logging/handling
         override fun onCreate() {
@@ -35,7 +40,8 @@ class CoinWidgetSpritesService : RemoteViewsService()
                     Log.e("ERROR", "App widget id is invalid.")
                     return
                 }
-                coinSpriteIds = coinSpritesProvider.getCoinSprites(appWidgetId)
+                coinSpriteIds = coinSpritesRepository.getCoinSprites(appWidgetId)
+                coinFlipper = CoinFlipper(coinSpriteIds)
             } ?: run {
                 Log.e("ERROR", "Intent is null.")
                 return
@@ -57,7 +63,12 @@ class CoinWidgetSpritesService : RemoteViewsService()
             R.layout.coin_widget_sprite
         ).apply {
             setImageViewResource(R.id.coin_sprite, coinSpriteIds[position])
-            setOnClickFillInIntent(R.id.coin_sprite, Intent())
+            val coinFlipResult = coinFlipper.getCoinFlipResult()
+            val coinFlipIntent = Intent().apply {
+                putExtra(COIN_FLIP_RESULT_IS_HEADS, coinFlipResult.isHeads)
+                putExtra(COIN_FLIP_RESULT_TIMES, coinFlipResult.timesFlipped)
+            }
+            setOnClickFillInIntent(R.id.coin_sprite, coinFlipIntent)
         }
 
         override fun getCount() = coinSpriteIds.size

@@ -1,12 +1,12 @@
-package com.rmanley.coinflipper.util
+package com.rmanley.coinflipper.storage
 
 import android.content.Context
 import android.util.Log
-import com.rmanley.coinflipper.storage.CoinWidgetSharedPreferences
+import com.rmanley.coinflipper.util.CoinSpritesBuilder
 
-class CoinSpritesProvider(
+class CoinSpritesRepository(
     private val coinSpritesBuilder: CoinSpritesBuilder,
-    private val coinWidgetStorage: CoinWidgetSharedPreferences
+    private val coinWidgetStorage: CoinWidgetStorage
 ) {
 
     // todo: better implement error logging/handling
@@ -28,10 +28,10 @@ class CoinSpritesProvider(
     }
 
     companion object Factory {
-        fun createInstance(context: Context): CoinSpritesProvider =
-            CoinSpritesProvider(
+        fun createInstance(context: Context): CoinSpritesRepository =
+            CoinSpritesRepository(
                 CoinSpritesBuilder(context.resources),
-                CoinWidgetSharedPreferences.createInstance(context)
+                CoinWidgetStorage.createInstance(context)
             )
     }
 }

@@ -6,12 +6,14 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.RemoteViews
 import android.widget.Toast
 import com.rmanley.coinflipper.R
-import com.rmanley.coinflipper.storage.CoinWidgetSharedPreferences
+import com.rmanley.coinflipper.model.CoinFlipResult
+import com.rmanley.coinflipper.storage.CoinSpritesRepository
+import com.rmanley.coinflipper.storage.CoinWidgetStorage
 import com.rmanley.coinflipper.util.CoinFlipper
-import com.rmanley.coinflipper.util.CoinSpritesProvider
 import kotlinx.coroutines.*
 
 /**
@@ -40,7 +42,7 @@ class CoinWidgetProvider : AppWidgetProvider() {
 
     override fun onDeleted(context: Context?, appWidgetIds: IntArray?) {
         context?.let {
-            val coinWidgetStorage = CoinWidgetSharedPreferences.createInstance(it)
+            val coinWidgetStorage = CoinWidgetStorage.createInstance(it)
             appWidgetIds?.forEach { id ->
                 coinWidgetStorage.deleteCoinColors(id)
             }
@@ -55,11 +57,18 @@ class CoinWidgetProvider : AppWidgetProvider() {
             if (receivedIntent.action == COIN_FLIPPED) {
                 val appWidgetId = receivedIntent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID)
+                val isHeads = receivedIntent.getBooleanExtra(COIN_FLIP_RESULT_IS_HEADS, false)
+                val times = receivedIntent.getIntExtra(COIN_FLIP_RESULT_TIMES, -1)
+                if (times == -1) {
+                    Log.e("ERROR", "CoinFlipResult extra is null.")
+                    return
+                }
+                val coinFlipResult = CoinFlipResult(isHeads, times)
                 context?.let {
                     if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID && !isFlipping) {
                         isFlipping = true
                         GlobalScope.launch {
-                            flipCoin(it, appWidgetId)
+                            flipCoin(it, appWidgetId, coinFlipResult)
                         }
                     }
                 }
@@ -67,31 +76,28 @@ class CoinWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    // todo: refactor
-    private suspend fun flipCoin(context: Context, appWidgetId: Int) {
+    private suspend fun flipCoin(context: Context, appWidgetId: Int, coinFlipResult: CoinFlipResult) {
         withContext(Dispatchers.Main) {
-            val coinFlipResult = coinFlipper?.getCoinFlipResult()
-            coinFlipResult?.let { result ->
-                repeat(result.timesFlipped) {
-                    val appWidgetManager = AppWidgetManager.getInstance(context)
-                    val views = RemoteViews(
-                        context.packageName,
-                        R.layout.coin_widget
-                    )
-                    views.showNext(R.id.flipper)
-                    appWidgetManager.updateAppWidget(appWidgetId, views)
-                    delay(25)
-                }
-                isFlipping = false
-                val side = if (result.isHeads) "Heads!" else "Tails!"
-                Toast.makeText(context, side, Toast.LENGTH_SHORT).show()
+            repeat(coinFlipResult.timesFlipped) {
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                val views = RemoteViews(
+                    context.packageName,
+                    R.layout.coin_widget
+                )
+                views.showNext(R.id.flipper)
+                appWidgetManager.updateAppWidget(appWidgetId, views)
+                delay(25)
             }
+            isFlipping = false
+            val side = if (coinFlipResult.isHeads) "Heads!" else "Tails!"
+            Toast.makeText(context, side, Toast.LENGTH_SHORT).show()
         }
     }
 
     companion object {
         private const val COIN_FLIPPED = "com.example.coinflipper.action.COIN_FLIPPED"
-        private lateinit var coinFlipper: CoinFlipper
+        const val COIN_FLIP_RESULT_IS_HEADS = "coin_flip_result_is_heads"
+        const val COIN_FLIP_RESULT_TIMES = "coin_flip_result_times"
 
         fun updateCoinWidget(
             context: Context,
@@ -105,8 +111,6 @@ class CoinWidgetProvider : AppWidgetProvider() {
             }
             views.setRemoteAdapter(R.id.flipper, intent)
             views.setPendingIntentTemplate(R.id.flipper, getPendingIntent(context, appWidgetId))
-            val coinSprites = CoinSpritesProvider.createInstance(context!!).getCoinSprites(appWidgetId)
-            coinFlipper = CoinFlipper(coinSprites)
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
@@ -116,7 +120,7 @@ class CoinWidgetProvider : AppWidgetProvider() {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
             }
-            return PendingIntent.getBroadcast(context, appWidgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            return PendingIntent.getBroadcast(context, System.currentTimeMillis().toInt(), intent, 0)
         }
     }
 }

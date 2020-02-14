@@ -1,20 +1,18 @@
 package com.rmanley.coinflipper.storage
 
-import android.content.Context
 import android.content.SharedPreferences
-import androidx.preference.PreferenceManager
 import com.rmanley.coinflipper.model.CoinColor
 
-class CoinWidgetSharedPreferences(private val sharedPreferences: SharedPreferences) {
-    fun saveHeadsColor(appWidgetId: Int, coinColor: CoinColor) = saveColor(HEADS_COLOR_KEY, appWidgetId, coinColor)
+class CoinWidgetSharedPreferences(private val sharedPreferences: SharedPreferences) : CoinWidgetStorage {
+    override fun saveHeadsColor(appWidgetId: Int, coinColor: CoinColor) = saveColor(HEADS_COLOR_KEY, appWidgetId, coinColor)
 
-    fun findHeadsColor(appWidgetId: Int): CoinColor? = findColor(HEADS_COLOR_KEY, appWidgetId)
+    override fun findHeadsColor(appWidgetId: Int): CoinColor? = findColor(HEADS_COLOR_KEY, appWidgetId)
 
-    fun saveTailsColor(appWidgetId: Int, coinColor: CoinColor) = saveColor(TAILS_COLOR_KEY, appWidgetId, coinColor)
+    override fun saveTailsColor(appWidgetId: Int, coinColor: CoinColor) = saveColor(TAILS_COLOR_KEY, appWidgetId, coinColor)
 
-    fun findTailsColor(appWidgetId: Int): CoinColor? = findColor(TAILS_COLOR_KEY, appWidgetId)
+    override fun findTailsColor(appWidgetId: Int): CoinColor? = findColor(TAILS_COLOR_KEY, appWidgetId)
 
-    fun deleteCoinColors(appWidgetId: Int) {
+    override fun deleteCoinColors(appWidgetId: Int) {
         sharedPreferences.edit()
             .remove("$HEADS_COLOR_KEY$appWidgetId")
             .remove("$TAILS_COLOR_KEY$appWidgetId")
@@ -36,12 +34,8 @@ class CoinWidgetSharedPreferences(private val sharedPreferences: SharedPreferenc
         }
     }
 
-    companion object Factory {
+    private companion object {
         private const val HEADS_COLOR_KEY = "heads_color"
         private const val TAILS_COLOR_KEY = "tails_color"
-
-        fun createInstance(context: Context) = CoinWidgetSharedPreferences(
-            PreferenceManager.getDefaultSharedPreferences(context)
-        )
     }
 }

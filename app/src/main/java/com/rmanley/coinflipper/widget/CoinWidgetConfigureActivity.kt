@@ -8,6 +8,7 @@ import com.rmanley.coinflipper.R
 import com.rmanley.coinflipper.model.Coin
 import com.rmanley.coinflipper.model.CoinColor
 import com.rmanley.coinflipper.storage.CoinWidgetSharedPreferences
+import com.rmanley.coinflipper.storage.CoinWidgetStorage
 import com.rmanley.coinflipper.ui.CoinSpinnerAdapter
 import com.rmanley.coinflipper.widget.CoinWidgetProvider.Companion.updateCoinWidget
 import kotlinx.android.synthetic.main.coin_widget_configure.*
@@ -52,7 +53,7 @@ class CoinWidgetConfigureActivity : Activity() {
     }
 
     private fun createWidget() {
-        val coinWidgetStorage = CoinWidgetSharedPreferences.createInstance(this)
+        val coinWidgetStorage = CoinWidgetStorage.createInstance(this)
         val appWidgetManager = AppWidgetManager.getInstance(this)
 
         val headsCoin = heads_spinner.selectedItem as Coin

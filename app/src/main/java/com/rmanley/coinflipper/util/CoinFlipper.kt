@@ -8,20 +8,38 @@ class CoinFlipper(
     private val spritesUntilHeads: Int = coinSprites.size,
     private val spritesUntilTails: Int = coinSprites.size / 2
 ) {
+    private var lastResult = CoinFlipResult(true, 0)
 
     fun getCoinFlipResult(isHeads: Boolean = Random.nextBoolean()): CoinFlipResult {
-        val timesToFlip = if (isHeads)
-            getTimeToFlip(spritesUntilHeads)
+        val spritesUntilPosition = if (isHeads)
+            spritesUntilHeads
         else
-            getTimeToFlip(spritesUntilTails)
-        return CoinFlipResult(isHeads, timesToFlip)
+            spritesUntilTails
+
+        val timesToFlip = if (lastResult.isHeads)
+            getTimesToFlipFromHeads(spritesUntilPosition)
+        else
+            getTimesToFlipFromTails(spritesUntilPosition)
+
+        lastResult = CoinFlipResult(isHeads, timesToFlip)
+        return lastResult.copy()
     }
 
-    private fun getTimeToFlip(spritesUntilPosition: Int): Int {
+    private fun getTimesToFlipFromHeads(spritesUntilPosition: Int) = getTimesToFlip(
+        spritesUntilPosition,
+        0
+    )
+
+    private fun getTimesToFlipFromTails(spritesUntilPosition: Int) = getTimesToFlip(
+        spritesUntilTails + spritesUntilPosition,
+        spritesUntilTails
+    )
+
+    private fun getTimesToFlip(spritesUntilPosition: Int, desiredPosition: Int): Int {
         val flipMultiplier = (3..5).random()
         var timesToFlip = spritesUntilPosition * flipMultiplier
-        while (coinSprites[timesToFlip % coinSprites.size] != coinSprites[spritesUntilPosition % coinSprites.size]) {
-            timesToFlip += spritesUntilPosition
+        while (coinSprites[timesToFlip % coinSprites.size] != coinSprites[desiredPosition]) {
+            timesToFlip++
         }
         return timesToFlip
     }
