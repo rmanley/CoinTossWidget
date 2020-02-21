@@ -120,7 +120,7 @@ class CoinWidgetProvider : AppWidgetProvider() {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
             }
-            return PendingIntent.getBroadcast(context, System.currentTimeMillis().toInt(), intent, 0)
+            return PendingIntent.getBroadcast(context, System.currentTimeMillis().toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
     }
 }

@@ -31,7 +31,7 @@ class CoinFlipperTest {
 
     private companion object {
         const val HEADS_INDEX = 0
-        const val TAILS_INDEX = 7
+        const val TAILS_INDEX = 8
         val sprites = IntArray(16) { i -> i + 1 }
     }
 }

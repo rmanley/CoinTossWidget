@@ -6,7 +6,7 @@ import kotlin.random.Random
 class CoinFlipper(
     private val coinSprites: IntArray,
     private val headsIndex: Int = 0,
-    private val tailsIndex: Int = coinSprites.size / 2 - 1
+    private val tailsIndex: Int = coinSprites.size / 2
 ) {
 
     fun getCoinFlipResult(isHeads: Boolean = Random.nextBoolean()): CoinFlipResult {

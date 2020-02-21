@@ -67,6 +67,7 @@ class CoinWidgetSpritesService : RemoteViewsService()
             val coinFlipIntent = Intent().apply {
                 putExtra(COIN_FLIP_RESULT_IS_HEADS, coinFlipResult.isHeads)
                 putExtra(COIN_FLIP_RESULT_TIMES, coinFlipResult.timesFlipped)
+				data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
             }
             setOnClickFillInIntent(R.id.coin_sprite, coinFlipIntent)
         }
