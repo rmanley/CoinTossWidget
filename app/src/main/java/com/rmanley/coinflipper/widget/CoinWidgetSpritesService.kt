@@ -3,7 +3,6 @@ package com.rmanley.coinflipper.widget
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
@@ -67,7 +66,6 @@ class CoinWidgetSpritesService : RemoteViewsService()
             val coinFlipIntent = Intent().apply {
                 putExtra(COIN_FLIP_RESULT_IS_HEADS, coinFlipResult.isHeads)
                 putExtra(COIN_FLIP_RESULT_TIMES, coinFlipResult.timesFlipped)
-				data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
             }
             setOnClickFillInIntent(R.id.coin_sprite, coinFlipIntent)
         }

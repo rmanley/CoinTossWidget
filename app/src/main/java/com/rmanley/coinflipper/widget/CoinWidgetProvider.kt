@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.Toast
@@ -107,7 +106,6 @@ class CoinWidgetProvider : AppWidgetProvider() {
             val views = RemoteViews(context.packageName, R.layout.coin_widget)
             val intent = Intent(context, CoinWidgetSpritesService::class.java).apply {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
             }
             views.setRemoteAdapter(R.id.flipper, intent)
             views.setPendingIntentTemplate(R.id.flipper, getPendingIntent(context, appWidgetId))
@@ -118,9 +116,8 @@ class CoinWidgetProvider : AppWidgetProvider() {
             val intent = Intent(context, CoinWidgetProvider::class.java).apply {
                 action = COIN_FLIPPED
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
             }
-            return PendingIntent.getBroadcast(context, System.currentTimeMillis().toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            return PendingIntent.getBroadcast(context, appWidgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
     }
 }
