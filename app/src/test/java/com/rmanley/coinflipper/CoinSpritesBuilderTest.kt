@@ -24,7 +24,7 @@ class CoinSpritesBuilderTest {
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        mockkStatic("com.example.coinflipper.ResourcesExtensionsKt")
+        mockkStatic("com.rmanley.coinflipper.extensions.ResourcesExtensionsKt")
     }
 
     @Test
