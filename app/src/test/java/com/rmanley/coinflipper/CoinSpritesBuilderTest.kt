@@ -55,12 +55,14 @@ class CoinSpritesBuilderTest {
 
     private companion object {
         const val TOTAL_SPRITES = 16
-        val mockCoinSpriteIds1 = IntArray(8) { i -> i }
-        val mockCoinSpriteIds2 = IntArray(8) { i -> i * 2 }
+        val mockCoinSpriteIds1 = IntArray(8) { i -> i + 1 }
+        val mockCoinSpriteIds2 = IntArray(8) { i -> (i + 1) * 100 }
+        // 1 == heads
+        // 100 == tails
         val mockCombinedSpriteIds = intArrayOf(
-            0, 1, 2, 3, 4,
-            10, 12, 14, 0, 2, 4, 6,
-            4, 5, 6, 7
+            1, 2, 3, 4, 5, // heads
+            600, 700, 800, 100, 200, 300, 400, // tails
+            5, 6, 7, 8 // back to heads
         )
     }
 }
