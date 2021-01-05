@@ -14,6 +14,20 @@ class CoinWidgetSharedPreferences(private val sharedPreferences: SharedPreferenc
 
     fun findTailsColor(appWidgetId: Int): CoinColor? = findColor(TAILS_COLOR_KEY, appWidgetId)
 
+    fun saveCurrentSpriteFrame(appWidgetId: Int, frame: Int) {
+        sharedPreferences.edit()
+            .putInt("$SPRITE_FRAME$appWidgetId", frame)
+            .apply()
+    }
+
+    fun findCurrentSpriteFrame(appWidgetId: Int) = sharedPreferences.getInt("$SPRITE_FRAME$appWidgetId", 0)
+
+    fun deleteCurrentSpriteFrame(appWidgetId: Int) {
+        sharedPreferences.edit()
+            .remove("$SPRITE_FRAME$appWidgetId")
+            .apply()
+    }
+
     fun deleteCoinColors(appWidgetId: Int) {
         sharedPreferences.edit()
             .remove("$HEADS_COLOR_KEY$appWidgetId")
@@ -39,6 +53,7 @@ class CoinWidgetSharedPreferences(private val sharedPreferences: SharedPreferenc
     companion object Factory {
         private const val HEADS_COLOR_KEY = "heads_color"
         private const val TAILS_COLOR_KEY = "tails_color"
+        private const val SPRITE_FRAME = "sprite_frame"
 
         fun createInstance(context: Context) = CoinWidgetSharedPreferences(
             PreferenceManager.getDefaultSharedPreferences(context)

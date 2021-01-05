@@ -22,7 +22,6 @@ import kotlinx.coroutines.*
 
 class CoinWidgetProvider : AppWidgetProvider() {
     private var isFlipping = false
-    private var currentSide = true // todo move state to shared prefs
 
     override fun onUpdate(
         context: Context,
@@ -39,12 +38,11 @@ class CoinWidgetProvider : AppWidgetProvider() {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
     }
 
-    override fun onDeleted(context: Context?, appWidgetIds: IntArray?) {
-        context?.let {
-            val coinWidgetStorage = CoinWidgetSharedPreferences.createInstance(it)
-            appWidgetIds?.forEach { id ->
-                coinWidgetStorage.deleteCoinColors(id)
-            }
+    override fun onDeleted(context: Context, appWidgetIds: IntArray?) {
+        val coinWidgetStorage = CoinWidgetSharedPreferences.createInstance(context)
+        appWidgetIds?.forEach { id ->
+            coinWidgetStorage.deleteCoinColors(id)
+            coinWidgetStorage.deleteCurrentSpriteFrame(id)
         }
         super.onDeleted(context, appWidgetIds)
     }
@@ -67,12 +65,14 @@ class CoinWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    // todo: refactor
+    // todo: optimize this
     private suspend fun flipCoin(context: Context, appWidgetId: Int) {
         withContext(Dispatchers.Main) {
+            val coinWidgetStorage = CoinWidgetSharedPreferences.createInstance(context)
+            val currentSide = coinWidgetStorage.findCurrentSpriteFrame(appWidgetId) == 0
             val flipResult = flipCoin(currentSide)
             Log.d("COIN_FLIPPER", "Result: $flipResult\nCurrent Side: $currentSide")
-            currentSide = flipResult.isHeads
+            coinWidgetStorage.saveCurrentSpriteFrame(appWidgetId, if (flipResult.isHeads) 0 else 8)
             repeat(flipResult.frames) {
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 val views = RemoteViews(context.packageName,
@@ -89,9 +89,7 @@ class CoinWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    private fun flipCoin(
-        currentSideIsHeads: Boolean
-    ): CoinSpriteFlipResult {
+    private fun flipCoin(currentSideIsHeads: Boolean): CoinSpriteFlipResult {
         val currentValue = if (currentSideIsHeads) 0 else 8
         val multiplier = (2..5).random()
         val result = 8 * multiplier

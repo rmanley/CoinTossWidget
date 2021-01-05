@@ -10,8 +10,7 @@ import com.rmanley.coinflipper.R
 import com.rmanley.coinflipper.storage.CoinWidgetSharedPreferences
 import com.rmanley.coinflipper.util.CoinSpritesBuilder
 
-class CoinWidgetSpritesService : RemoteViewsService()
-{
+class CoinWidgetSpritesService : RemoteViewsService() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
     override fun onGetViewFactory(intent: Intent?): RemoteViewsFactory = CoinWidgetRemoteViewsFactory(
@@ -48,6 +47,7 @@ class CoinWidgetSpritesService : RemoteViewsService()
                     .setHeadsSprites(headsCoinColor)
                     .setTailsSprites(tailsCoinColor)
                     .build()
+                coinWidgetStorage.saveCurrentSpriteFrame(appWidgetId, 0)
             } ?: run {
                 Log.e("ERROR", "Intent is null.")
                 return
