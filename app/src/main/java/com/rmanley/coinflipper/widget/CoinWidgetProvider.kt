@@ -6,12 +6,13 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.RemoteViews
 import android.widget.Toast
 import com.rmanley.coinflipper.R
 import com.rmanley.coinflipper.storage.CoinWidgetSharedPreferences
+import com.rmanley.coinflipper.util.CoinSpriteFlipResult
 import kotlinx.coroutines.*
-import kotlin.random.Random
 
 /**
  * Implementation of App Widget functionality.
@@ -21,6 +22,7 @@ import kotlin.random.Random
 
 class CoinWidgetProvider : AppWidgetProvider() {
     private var isFlipping = false
+    private var currentSide = true // todo move state to shared prefs
 
     override fun onUpdate(
         context: Context,
@@ -68,8 +70,10 @@ class CoinWidgetProvider : AppWidgetProvider() {
     // todo: refactor
     private suspend fun flipCoin(context: Context, appWidgetId: Int) {
         withContext(Dispatchers.Main) {
-            val flipResult = getTimesToFlipAndResult()
-            repeat(flipResult.first) {
+            val flipResult = flipCoin(currentSide)
+            Log.d("COIN_FLIPPER", "Result: $flipResult\nCurrent Side: $currentSide")
+            currentSide = flipResult.isHeads
+            repeat(flipResult.frames) {
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 val views = RemoteViews(context.packageName,
                     R.layout.coin_widget
@@ -79,19 +83,22 @@ class CoinWidgetProvider : AppWidgetProvider() {
                 delay(25)
             }
             isFlipping = false
-            val side = if(flipResult.second) "Heads!" else "Tails!"
+            Log.d("COIN_FLIPPER", "Current Side: $currentSide")
+            val side = if (flipResult.isHeads) "Heads!" else "Tails!"
             Toast.makeText(context, side, Toast.LENGTH_SHORT).show()
         }
     }
 
-    // todo: refactor
-    private fun getTimesToFlipAndResult(): Pair<Int, Boolean> {
-        val isHeads = Random.nextBoolean()
-        val multiplier = (3..5).random()
-        return if (isHeads)
-            Pair(16 * multiplier, isHeads)
-        else
-            Pair(8 * multiplier, isHeads)
+    private fun flipCoin(
+        currentSideIsHeads: Boolean
+    ): CoinSpriteFlipResult {
+        val currentValue = if (currentSideIsHeads) 0 else 8
+        val multiplier = (2..5).random()
+        val result = 8 * multiplier
+        return CoinSpriteFlipResult(
+            result,
+            (result + currentValue) % 16 != 8
+        )
     }
 
     companion object {
