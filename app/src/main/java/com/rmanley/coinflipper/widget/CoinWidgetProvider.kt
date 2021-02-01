@@ -66,6 +66,7 @@ class CoinWidgetProvider : AppWidgetProvider() {
     }
 
     // todo: optimize this
+    // todo: fix bug where coin lands on in-between sprites
     private suspend fun flipCoin(context: Context, appWidgetId: Int) {
         withContext(Dispatchers.Main) {
             val coinWidgetStorage = CoinWidgetSharedPreferences.createInstance(context)
